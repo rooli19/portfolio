@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="This case study has moved.">
+  <title>Project moved | Rholly Cao</title>
+</head>
+<body>
+  <main>
+    <h1>Project moved</h1>
+    <p><a id="destination" href="./hiss-n-miss.html">Open the case study →</a></p>
+  </main>
+  <script>
+    const link = document.getElementById('destination')
+    link.href += location.search + location.hash
+    location.replace(link.href)
+  </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Get in touch with Rholly Cao about projects and collaboration.">
+  <title>Contact | Rholly Cao</title>
+  <link rel="icon" href="/src/assets/logo.svg" type="image/svg+xml">
+</head>
+<body>
+  <div id="root">
+    <main style="font-family:system-ui,sans-serif;padding:2rem">
+      <h1>Contact</h1>
+      <p id="boot-message">Loading portfolio…</p>
+      <noscript><p>Enable JavaScript to view this page.</p></noscript>
+      <p><a href="%BASE_URL%">Home</a> · <a href="%BASE_URL%works.html">Works</a> · <a href="mailto:caorholly14@gmail.com">Email Rholly</a></p>
+    </main>
+  </div>
+  <script type="module" src="/src/pages/Contact.jsx"></script>
+  <script>
+    window.addEventListener('error', function (event) {
+      if (event.target.tagName !== 'SCRIPT') return
+      const message = document.getElementById('boot-message')
+      if (message) message.textContent = 'This page could not load. Try refreshing or use the links below.'
+    }, true)
+  </script>
+</body>
+</html>

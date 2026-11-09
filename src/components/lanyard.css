@@ -1,0 +1,42 @@
+.lanyard {
+  --strap-length: clamp(110px, 8vw, 118px);
+  --clasp-length: 112px;
+  position: relative;
+  width: min(65vw, 326px);
+  margin-inline: auto;
+  touch-action: pan-y;
+}
+.lanyard-assembly, .lanyard-band, .lanyard-badge { position: relative; }
+.lanyard-band {
+  padding-top: calc(var(--strap-length) + var(--clasp-length) * .56);
+  transform-origin: top center;
+}
+.lanyard-strap, .lanyard-clasp { position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none; }
+.lanyard-strap { top: -130px; width: 24px; height: calc(var(--strap-length) + 130px); }
+.lanyard-clasp { top: calc(var(--strap-length) - 11px); height: var(--clasp-length); width: auto; }
+.lanyard-clasp-back { clip-path: inset(0 48% 0 0); }
+.lanyard-clasp-front { z-index: 2; clip-path: inset(0 0 0 52%); }
+.lanyard-badge { z-index: 1; transform-origin: 50% 20px; }
+.lanyard .hanging-paper {
+  padding: 76px 15px 16px;
+  background: linear-gradient(#ffffffae, #ffffffae), url('../assets/paper.avif') center/cover;
+  border-radius: 5px;
+}
+.lanyard .hanging-paper::before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: calc(50% - 30px);
+  width: 60px;
+  height: 14px;
+  border: 1px solid #d1d0cd;
+  border-radius: 10px;
+  background: var(--paper);
+}
+.lanyard .paper-image { border-radius: 5px; }
+@media (max-width: 809px) {
+  .lanyard { --strap-length: 30px; --clasp-length: 65px; width: min(57vw, 300px); }
+  .lanyard-strap { width: 16px; }
+  .lanyard .hanging-paper { padding: 44px 9px 10px; }
+  .lanyard .hanging-paper::before { top: 8px; width: 38px; height: 10px; left: calc(50% - 19px); }
+}
