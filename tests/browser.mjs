@@ -240,6 +240,15 @@ async function regressions(browser) {
   await normal.mouse.up()
   assert.notDeepEqual(await canvas.screenshot(), before)
   await normal.goto(site + '/works.html')
+  await normal.waitForFunction(() => {
+    const title = document.querySelector('.ink-title')
+    const picture = document.querySelector('.project-card .paper-image')
+    return title && picture && [title, picture].every(item => getComputedStyle(item).maskImage.startsWith('url('))
+  })
+  await normal.waitForFunction(() => getComputedStyle(document.querySelector('.ink-title')).maskImage === 'none')
+  const aboutLink = normal.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'about' })
+  await aboutLink.hover()
+  assert.equal(await aboutLink.evaluate(link => getComputedStyle(link, '::after').animationName), 'draw-on')
   const newTab = normal.context().waitForEvent('page')
   await normal.getByRole('link', { name: /TranspoGAPO/ }).click({ modifiers: ['ControlOrMeta'] })
   const opened = await newTab
