@@ -26,23 +26,21 @@ For another static host, publish the contents of `dist/` and configure the host 
 
 - `src/content/projects.js` holds the projects, roles, technologies, case studies, and live links.
 - `src/content/profile.js` holds skills, experience, and contact details.
-- `src/content/media.js` holds the project images, Playground photos, Home camera photos, and showreel.
+- `src/content/media.js` holds the project images, Playground photos, and Home camera photos.
 - `ASSETS.md` maps the reused artwork and fonts to their original export files.
 
 The page layouts live in `src/pages/`. The camera, notebook, hanging badge, and interactive gallery are separate components in `src/components/`. The lanyard and paper motion live in `src/animation/`, alongside the code that paints the gallery paper textures.
 
-Put your images in `public/photos/`. Set a slot to an object such as `{ src: '/photos/transpogapo-map.webp', alt: 'Map of the selected jeepney route' }`. The same cover appears on Home, Works, and the project page. Empty slots stay blank.
+Put your PNG images in `public/photos/`. Project slots load automatically from `<project>-<slot>.png`, such as `transpogapo-cover.png` or `resh-interface.png`. The project prefixes are `transpogapo`, `resh`, `landr`, and `hiss-n-miss`. The same cover appears on Home, Works, and the project page. Empty slots stay blank.
 
-| Project | Cover | Process | Interface | Result |
-| --- | --- | --- | --- | --- |
-| TranspoGAPO | Route map with a readable route | Routing flow or early wireframe | Mobile route selection | Turn-by-turn walking directions |
-| RESH | Receipt dashboard | OCR and extraction flow | Receipt upload or review | Organized expense record with sample data |
-| Landr. | Registry or map screen | Submission and review flow | Admin review or wallet connection | Verified record or hackathon result |
-| Hiss n Miss | Gameplay screenshot | Voice input diagram or sprite sheet | In-game obstacles and controls | Screenshot from a completed run |
+| Project     | Cover                           | Process                             | Interface                         | Result                                    |
+| ----------- | ------------------------------- | ----------------------------------- | --------------------------------- | ----------------------------------------- |
+| TranspoGAPO | Route map with a readable route | Routing flow or early wireframe     | Mobile route selection            | Turn-by-turn walking directions           |
+| RESH        | Receipt dashboard               | OCR and extraction flow             | Receipt upload or review          | Organized expense record with sample data |
+| Landr.      | Registry or map screen          | Submission and review flow          | Admin review or wallet connection | Verified record or hackathon result       |
+| Hiss n Miss | Gameplay screenshot             | Voice input diagram or sprite sheet | In-game obstacles and controls    | Screenshot from a completed run           |
 
-Add five photos or experiment images to `playgroundPhotos` and eight photos to `cameraPhotos`. Supply descriptive alt text for each new image. The camera arrows browse the roll. The green button moves the current photo to the end for that visit.
-
-Add your video to `showreel.src`, for example `/photos/showreel.mp4`. You can set `showreel.poster` to a still image. The framed play control becomes active when you supply a video.
+Name the five hanging photos `playground-01.png` through `playground-05.png` and the eight camera photos `camera-01.png` through `camera-08.png`. The numbers set their display order. You can customize alt text in `src/content/media.js`.
 
 Add your TranspoGAPO reflection in the project record. Include a routing decision you made, the constraint behind it, and what you learned. Check the case study against your separate CSE 316 slides before submitting.
 

@@ -117,7 +117,7 @@ async function smoke(engine, browser) {
         await page.evaluate(() => document.fonts.ready)
         await page.waitForLoadState('networkidle')
         const name = route === '/' ? 'home' : route.slice(1, -5).replaceAll('/', '-')
-        await page.screenshot({ path: resolve(results, viewport.width + '-' + name + '.png'), animations: 'disabled' })
+        await page.screenshot({ path: resolve(results, viewport.width + '-' + name + '.webp'), animations: 'disabled' })
         const sizes = await reportTransfer(page)
         transfer[viewport.width + ' ' + route] = sizes
       }
@@ -203,7 +203,12 @@ async function regressions(browser) {
   await normal.mouse.move(1100, 425)
   await normal.waitForFunction(() =>
     new DOMMatrix(getComputedStyle(document.querySelector('.lanyard-assembly')).transform).m41 > 20)
-  assert.ok(await normal.getByRole('button', { name: 'Showreel video to be added' }).isDisabled())
+  assert.equal(await normal.locator('main video').count(), 0)
+  const skills = normal.getByRole('region', { name: 'What I build with' })
+  await skills.getByRole('button', { name: 'Pause scrolling' }).click()
+  assert.equal(await skills.locator('.tech-track').evaluate(track => getComputedStyle(track).animationPlayState), 'paused')
+  await skills.getByRole('button', { name: 'Resume scrolling' }).click()
+  assert.equal(await skills.locator('.tech-track').evaluate(track => getComputedStyle(track).animationPlayState), 'running')
   await normal.getByRole('button', { name: 'Next photo', exact: true }).click()
   assert.equal(await normal.locator('.camera-counter').textContent(), '002–008')
   await normal.getByRole('button', { name: 'Previous photo' }).click()

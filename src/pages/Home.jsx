@@ -1,7 +1,7 @@
 import { mount } from '../components/Shell'
 import Lanyard from '../components/Lanyard'
 import ProjectCards from '../components/ProjectCards'
-import Showreel from '../components/Showreel'
+import TechMarquee from '../components/TechMarquee'
 import CameraViewer from '../components/CameraViewer'
 import InkTitle from '../components/InkTitle'
 import { sitePath } from '../sitePath'
@@ -23,9 +23,10 @@ function Home() {
         </div>
       </div>
     </section>
-    <Showreel />
+    <TechMarquee />
     <section className="wrap home-work" aria-label="Selected projects">
-      <h2 className="sr-only">Selected projects</h2>
+      <p className="handwritten kicker">Selected projects | 2024 to 2026</p>
+      <InkTitle as="h2" className="marker">Built by me, built with others</InkTitle>
       <ProjectCards featured />
     </section>
     <CameraViewer />

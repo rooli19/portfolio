@@ -63,7 +63,7 @@ export default function CameraViewer() {
 
   return <section className="camera-section">
     <InkTitle as="h2" className="marker">Things I pointed my camera at</InkTitle>
-    <p className="sticky handwritten">A few moments beyond the screen</p>
+    <p className="sticky handwritten">I also like taking pictures!</p>
     <div className="camera-stage">
       <div className="camera-filmstrip" aria-hidden="true">
         {photos.slice(index + 1).concat(photos.slice(0, index)).slice(0, 3).map(item =>
