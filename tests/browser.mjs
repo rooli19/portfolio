@@ -64,6 +64,7 @@ async function checkPage(page, route, title) {
   await page.getByRole('navigation', { name: 'Main navigation' }).waitFor()
   const heading = page.getByRole('heading', { name: title, exact: true, level: 1 })
   await heading.waitFor({ state: route === '/playground.html' ? 'attached' : 'visible' })
+  if (route === '/works/transpogapo.html') await page.getByRole('navigation', { name: 'Scrapbook chapters' }).waitFor()
   assert.equal(await page.getByRole('navigation', { name: 'Main navigation' }).isVisible(), true)
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), route + ' has horizontal overflow')
   const levels = await page.locator('main :is(h1, h2, h3)').evaluateAll(headings => headings.map(item => Number(item.tagName[1])))

@@ -4,6 +4,7 @@
   "description": "Rholly Cao’s scrapbook portfolio",
   "scripts": {
     "test": "node tests/browser.mjs",
+    "test:transpogapo": "node tests/transpogapo.mjs",
     "dev": "vite",
     "start": "vite",
     "build": "vite build",

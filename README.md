@@ -42,7 +42,9 @@ Put your PNG images in `public/photos/`. Project slots load automatically from `
 
 Name the five hanging photos `playground-01.png` through `playground-05.png` and the eight camera photos `camera-01.png` through `camera-08.png`. The numbers set their display order. You can customize alt text in `src/content/media.js`.
 
-Add your TranspoGAPO reflection in the project record. Include a routing decision you made, the constraint behind it, and what you learned. Check the case study against your separate CSE 316 slides before submitting.
+TranspoGAPO has a dedicated eight-chapter scrapbook at `works/transpogapo.html`. Chapter metadata, survey counts, journey stages, and screenshot descriptions live in `src/content/transpogapo.js`; narrative content lives in `src/components/TranspoChapters.jsx`. Its chapter fragments support direct links and browser history. The plane respects reduced motion; screenshots open in a keyboard-accessible dialog. Other case studies retain their shared layout.
+
+The current role and implementation dates were confirmed by Rholly. Content follows the instructor’s 26-slide template and the updated TranspoGAPO context through November 17, 2026. Persona and journey are illustrative; wireframes and the clickable flow are retrospective reconstructions. Evaluation scores describe the team’s 21 respondents, not measured journey improvements. The four `transpogapo-{planner,mobile,routes,terminals}.png` images were captured from the live app on November 17, 2026. The planner image is also used on project cards. Keep map attribution visible when replacing captures.
 
 The contact form opens a draft in the visitor’s email app. The email and LinkedIn links offer direct contact options.
 
@@ -55,3 +57,5 @@ npm test
 ```
 
 The checks serve `dist/` as static files and cover Chromium, Firefox, and WebKit. They include the gallery drag, lanyard, About rope, camera, notebook, and the gallery’s fallback when 3D is unavailable. Screenshots are written to `test-results/`. For a submission check, open the published site on an actual phone.
+
+For scrapbook interactions, run `npm run test:transpogapo` against a running dev or preview server. Set `PORTFOLIO_URL` to its URL (default `http://127.0.0.1:5174`, include `/portfolio` for a subpath build). This checks chapters, history, rapid navigation, reduced motion, the journey, reconstructed prototype, screenshot dialog, and widths from 320 to 1440 pixels.

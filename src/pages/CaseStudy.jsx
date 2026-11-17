@@ -4,10 +4,14 @@ import { projects } from '../content/projects'
 import InkTitle from '../components/InkTitle'
 import { ProjectCard } from '../components/ProjectCards'
 import { sitePath } from '../sitePath'
+import { lazy, Suspense } from 'react'
+
+const TranspoScrapbook = lazy(() => import('./TranspoScrapbook'))
 
 function CaseStudy({ index }) {
   const project = projects[index]
   const next = projects[index + 1]
+  if (project.slug === 'transpogapo') return <Suspense fallback={<div className="wrap case-study"><header className="case-heading"><h1>TranspoGAPO</h1><p>Opening the scrapbook…</p></header></div>}><TranspoScrapbook /></Suspense>
   return <article className="wrap case-study">
     <header className="case-heading">
       <p className="handwritten kicker">{project.category}</p>

@@ -15,7 +15,7 @@ const numberedPhoto = (group, index) => photo(group + '-' + String(index + 1).pa
 export const media = {
   transpogapo: {
     ...projectSlots('transpogapo', 'TranspoGAPO'),
-    cover: photo('transpogapo-cover.png', 'TranspoGAPO’s route browser showing the hand signals for the two Yellow Line destinations'),
+    cover: photo('transpogapo-planner.png', 'Current TranspoGAPO map comparing journeys from SM City Olongapo Central to Ulo ng Apo'),
   },
   resh: projectSlots('resh', 'RESH'),
   landr: projectSlots('landr', 'Landr.'),
