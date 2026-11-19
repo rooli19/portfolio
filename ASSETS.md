@@ -33,3 +33,7 @@ Files were copied from the original portfolio export. The original archive is ke
 | robot-icon.svg         | assets/images/dyATVNiYpnrMZjunPcEzZyqVkI-c55d3ecd.svg          |
 | cloud-icon.svg         | assets/images/SrTAolqvMa9NoBWVwzClkvvKY8-0e391570.svg          |
 | research-icon.svg      | assets/images/H17m4vyhkmFPrJxFtlxWtKLRVBA-fa71bf2d.svg         |
+
+## TranspoGAPO case study
+
+The `transpogapo-*-cutout.webp` images are original generated halftone illustrations for the scenes and charts. The app screenshots show the working planner. DM Serif Text is distributed under the SIL Open Font License, included in `public/licenses/dm-serif-text-OFL.txt`.

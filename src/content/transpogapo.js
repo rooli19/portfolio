@@ -10,10 +10,26 @@ export const chapters = [
 ]
 
 export const painPoints = [
-  ['53', 'Which jeepney?', 'Identifying the correct route or color code.', 'Pair the color with a route name and endpoints.'],
-  ['47', 'Where do I board?', 'Finding the correct terminal or boarding point.', 'Show a named stop and the walk to get there.'],
-  ['45', 'What will it cost?', 'Fare uncertainty or overcharging.', 'Put a clearly labeled fare estimate beside the trip.'],
-  ['47', 'Where do I transfer?', 'Finding where to change vehicles.', 'Separate the ride, walk, and next boarding step.'],
+  { id: 'route', label: 'Which jeepney?', count: 53, rank: '2.40', art: 'placard', detail: 'Pair the route color with a service name and endpoints.' },
+  { id: 'boarding', label: 'Where do I board?', count: 47, rank: '3.23', art: 'sign', detail: 'Show a named stop and the walk to get there.' },
+  { id: 'fare', label: 'What will it cost?', count: 45, rank: '3.58', art: 'ticket', detail: 'Put a clearly labeled fare estimate beside the trip.' },
+  { id: 'transfer', label: 'Where do I transfer?', count: 47, rank: '3.63', art: 'folded-map', detail: 'Separate the ride, walk, and next boarding step.' },
+]
+
+export const plannerBenchmark = [
+  { id: 'single', label: 'Single-mode reference', milliseconds: '150.836', art: 'stopwatch', detail: '15 origin–destination cases and 150 timed runs. The reference trips used one mode of transport.' },
+  { id: 'transfer', label: 'Transfer reference', milliseconds: '191.619', art: 'stopwatch', detail: '15 origin–destination cases and 150 timed runs. The reference trips included vehicle transfers.' },
+]
+
+export const evaluationCategories = [
+  { id: 'usefulness', label: 'Usefulness', rating: '4.62', art: 'folded-map', detail: 'How useful participants found the system for finding routes and planning trips.' },
+  { id: 'ease', label: 'Ease of use', rating: '4.51', art: 'clipboard', detail: 'How easy participants found the system to use and understand.' },
+  { id: 'completeness', label: 'Completeness of information', rating: '4.71', art: 'placard', detail: 'How complete participants found the route and trip information presented by the system.' },
+]
+
+export const evaluationQuestions = [
+  { id: 'color', label: 'Identifying vehicles by route color', rating: '4.86', art: 'placard', detail: 'Participants rated how well route colors helped them identify the right vehicle. Keep the colors alongside route names.' },
+  { id: 'clarity', label: 'Layout clarity', rating: '4.33', art: 'clipboard', detail: 'Layout clarity was the lowest ease-of-use item. Give the map and trip details clearer labels and test first-use guidance.' },
 ]
 
 export const journey = [

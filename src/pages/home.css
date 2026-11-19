@@ -58,7 +58,19 @@
 .featured-projects .project-entry:nth-child(2) { transform: rotate(2deg); }
 .featured-projects .project-entry:nth-child(3) { grid-column: 1 / -1; width: 82%; margin-inline: auto; transform: rotate(2deg); }
 .featured-projects .project-entry:nth-child(4) { grid-column: 1 / -1; width: 95%; margin-inline: auto; transform: rotate(-2deg); }
-.project-annotation { margin: 16px 0 0 12%; font-size: clamp(20px, 2vw, 28px); }
+.project-annotation {
+  display: grid;
+  grid-template-columns: clamp(36px, 4.5vw, 58px) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(10px, 1.4vw, 20px);
+  margin: 16px 0 0 clamp(8px, 4vw, 44px);
+  font-size: clamp(20px, 2vw, 28px);
+}
+.project-annotation .wobbly-ink { width: 100%; margin-top: .25em; }
+.project-annotation img { width: 100%; height: auto; }
+.project-annotation > span:last-child { text-wrap: pretty; }
+.featured-projects .project-card:is(:hover, :focus-visible) .project-caption { color: white; }
+.featured-projects .project-card:is(:hover, :focus-visible) .project-caption::before { background: var(--ink); animation: none; }
 .project-sticky { margin: 0 0 5px 15px; font-size: 20px; }
 .featured-projects .pencil-frame { border-width: clamp(12px, 2vw, 30px); }
 
