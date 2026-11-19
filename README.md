@@ -1,4 +1,4 @@
-# Rholly Cao’s Portfolio
+# My Portfolio
 
 I built this portfolio to share my projects and show how I approach problems as a developer. I went with a scrapbook style because I wanted it to feel like a collection of work I could flip through.
 
