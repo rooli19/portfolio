@@ -15,19 +15,11 @@ const numberedPhoto = (group, index) => photo(group + '-' + String(index + 1).pa
 export const media = {
   transpogapo: {
     ...projectSlots('transpogapo', 'TranspoGAPO'),
-    cover: photo('transpogapo-planner.png', 'Current TranspoGAPO map comparing journeys from SM City Olongapo Central to Ulo ng Apo'),
+    cover: photo('transpogapo-cover.png', 'TranspoGAPO homepage introducing jeepney routes and tricycle terminals in Olongapo'),
   },
   resh: projectSlots('resh', 'RESH'),
   landr: projectSlots('landr', 'Landr.'),
   'hiss-n-miss': projectSlots('hiss-n-miss', 'Hiss n Miss'),
 }
-
-export const playgroundPhotos = [
-  'Experiments and explorations',
-  'Creative work',
-  '',
-  'Ideas in progress',
-  '',
-].map((caption, index) => ({ ...numberedPhoto('playground', index), caption }))
 
 export const cameraPhotos = Array.from({ length: 8 }, (_, index) => ({ id: index + 1, ...numberedPhoto('camera', index) }))

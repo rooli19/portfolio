@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import { resolve } from 'node:path'
 
 const pages = [
-  'index', 'about', 'works', 'playground', 'contact', '404',
+  'index', 'about', 'works', 'contact', '404',
   'works/transpogapo', 'works/resh', 'works/landr', 'works/hiss-n-miss',
   'works/zen', 'works/uno', 'works/danang', 'works/katagina',
 ]

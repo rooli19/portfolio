@@ -29,9 +29,6 @@
 .about-letter:nth-child(5) { animation-delay: .32s; }
 .about-letter img { width: 100%; height: auto; }
 .about-letter:nth-child(1), .about-letter:nth-child(5) { margin-top: -12px; }
-.about-collage figure { transition: translate .36s ease, rotate .36s ease; }
-.about-collage figure:hover { translate: 0 -8px; rotate: -3deg; }
-
 .about-intro { text-align: center; }
 .about-intro > .sticky { margin-bottom: 33px; }
 .taped-notes {

@@ -33,6 +33,19 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 body { margin: 0; background: var(--paper); color: var(--ink); font: 19px/1.45 var(--body); }
+body:not([data-project]) {
+  background: linear-gradient(#fff5, #fff5),
+    url('./assets/crumpled-paper.avif') center top / clamp(540px, 100vw, 1254px) auto #fff;
+  background-blend-mode: normal, luminosity;
+}
+@media (any-hover: hover) and (any-pointer: fine) and (forced-colors: none) {
+  :root {
+    --scrapbook-pointer: url('./assets/scrapbook-pointer.png') 14 3, pointer;
+    cursor: url('./assets/scrapbook-cursor.png') 5 3, auto;
+  }
+  :where(a[href], button:not(:disabled), summary) { cursor: var(--scrapbook-pointer); }
+  :where(p, h1, h2, h3, h4, blockquote, dt, dd):not(:where(a *, button *)) { cursor: auto; }
+}
 a { color: inherit; text-underline-offset: .2em; }
 h1, h2, h3, p, figure { margin: 0; }
 h1 { font: 400 clamp(56px, 9vw, 132px)/1.05 var(--marker); }
@@ -102,7 +115,7 @@ main:focus { outline: none; }
 .paper-button {
   display: inline-block; width: fit-content; padding: 12px 22px;
   border: 0; background: none; font: 700 22px/1.1 var(--accent);
-  text-decoration: none; cursor: pointer; transition: transform 180ms ease;
+  text-decoration: none; cursor: var(--scrapbook-pointer, pointer); transition: transform 180ms ease;
 }
 .paper-button:hover { transform: rotate(-3deg) translateY(-2px); }
 .paper-button:is(:hover, :focus-visible)::before { animation: draw-on .35s ease-out both; }
@@ -180,19 +193,6 @@ main:focus { outline: none; }
 .next-project .project-card { margin: 26px auto 0; max-width: 790px; }
 
 .about-hero { position: relative; overflow: clip; text-align: center; padding: 25px 0 28px; }
-.about-collage { width: min(100% - var(--gutter) * 2, 1400px); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(16px, 3vw, 48px); padding: 16px 8px 36px; }
-.about-collage figure {
-  position: relative; background: #fff; padding: clamp(9px, 1.4vw, 20px);
-  border-radius: 2% 1% 2% 3%; transform: rotate(-5deg);
-  box-shadow: 0 8px 15px #25252512;
-}
-.about-collage figure:nth-child(even) { transform: rotate(4deg) translateY(26px); }
-.about-collage figure::before {
-  content: ''; position: absolute; top: -8px; left: 13px; width: 10px; height: 34px;
-  border: 2px solid #a5a39c; border-bottom-width: 1px; border-radius: 8px;
-}
-.about-collage figcaption { font-size: clamp(16px, 1.6vw, 24px); margin: 13px 0 22px; }
-.about-collage .paper-image { border-radius: 3% 4% 2% 6%; }
 .about-copy { width: min(100% - var(--gutter) * 2, 960px); }
 .about-copy section { margin-block: 44px; }
 .about-copy h2 { margin-bottom: 18px; }
@@ -200,7 +200,6 @@ main:focus { outline: none; }
 .note-card { background: #f9f3c9; padding: 20px; border-radius: 2% 0 4% 1%; }
 .note-card h3 { margin-bottom: 8px; }
 
-body:has(.contact-page) { background: radial-gradient(circle, #c7c7c7 1px, #fdfdfd 1.5px) 0 0 / 56px 56px; }
 .contact-page { display: grid; grid-template-columns: .9fr 1.1fr; align-items: center; gap: clamp(25px, 6vw, 92px); padding-top: 12px; }
 .contact-page h1 { margin-bottom: 24px; }
 .contact-page h1 .ink-word { display: block; margin-inline-end: 0; }
@@ -254,7 +253,6 @@ body:has(.contact-page) { background: radial-gradient(circle, #c7c7c7 1px, #fdfd
   .hero-copy h1 { font-size: clamp(40px, 11vw, 79px); }
   .hero-copy p { font-size: 17px; }
   .case-heading { padding-top: 20px; }
-  .about-collage { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .contact-page { grid-template-columns: 1fr; }
   .contact-page h1 .ink-word { display: inline-block; }
   .contact-page h1 .ink-word:not(:last-child) { margin-inline-end: .23em; }

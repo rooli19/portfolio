@@ -8,7 +8,6 @@ import '../style.css'
 const pages = [
   ['about', '/about.html'],
   ['works', '/works.html'],
-  ['playground', '/playground.html'],
   ['contact', '/contact.html'],
 ]
 
@@ -38,7 +37,7 @@ export function Shell({ active, children }) {
         {children}
       </Recovery>
     </main>
-    {active !== 'playground' && active !== 'contact' &&
+    {active !== 'contact' &&
       <Recovery fallback={<footer className="wrap recovery"><a href={sitePath('contact.html')}>Get in touch ↗</a></footer>}>
         <ContactNotebook />
       </Recovery>}

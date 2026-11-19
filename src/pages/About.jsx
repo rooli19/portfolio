@@ -1,11 +1,7 @@
 import { mount } from '../components/Shell'
-import PaperImage from '../components/PaperImage'
 import InkTitle from '../components/InkTitle'
 import AboutRope from '../components/AboutRope'
 import { experience, skills } from '../content/profile'
-import mountains from '../assets/about-mountains.avif'
-import running from '../assets/about-running.avif'
-import tennis from '../assets/about-tennis.avif'
 import codeIcon from '../assets/code-icon.svg'
 import robotIcon from '../assets/robot-icon.svg'
 import cloudIcon from '../assets/cloud-icon.svg'
@@ -14,24 +10,11 @@ import './about.css'
 
 const experienceIcons = [codeIcon, robotIcon, cloudIcon, researchIcon]
 
-const photos = [
-  ['Moments outside the classroom', mountains, 'A runner beside a mountain lake'],
-  ['Beyond the screen', running, 'Runners on a trail at sunset'],
-  ['Learning and building', tennis, 'Two people on a tennis court from above'],
-  ['Creating and exploring', mountains, 'A mountain lake reflecting the sky'],
-]
-
 function About() {
   return <>
     <section className="about-hero">
       <p className="handwritten kicker">a little more about me</p>
       <AboutRope />
-      <div className="about-collage wrap">
-        {photos.map(([caption, src, alt]) => <figure key={caption}>
-          <figcaption className="handwritten">{caption}</figcaption>
-          <PaperImage image={{ src, alt }} width={440} height={450} />
-        </figure>)}
-      </div>
     </section>
     <div className="wrap about-copy">
       <section className="about-intro">

@@ -12,7 +12,6 @@ const routes = {
   '/': 'I’m Rholly Cao',
   '/about.html': 'About',
   '/works.html': 'Works',
-  '/playground.html': 'Playground',
   '/contact.html': 'Say hello',
   '/works/transpogapo.html': 'TranspoGAPO',
   '/works/resh.html': 'RESH',
@@ -63,9 +62,14 @@ await mkdir(results, { recursive: true })
 async function checkPage(page, route, title) {
   await page.getByRole('navigation', { name: 'Main navigation' }).waitFor()
   const heading = page.getByRole('heading', { name: title, exact: true, level: 1 })
-  await heading.waitFor({ state: route === '/playground.html' ? 'attached' : 'visible' })
+  await heading.waitFor()
+  if (route === '/') assert.equal(await page.locator('#portfolio-boot').count(), 0)
   if (route === '/works/transpogapo.html') await page.getByRole('navigation', { name: 'Scrapbook chapters' }).waitFor()
   assert.equal(await page.getByRole('navigation', { name: 'Main navigation' }).isVisible(), true)
+  assert.equal(await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Playground' }).count(), 0)
+  if (route === '/about.html') assert.equal(await page.locator('.about-collage').count(), 0)
+  const background = await page.locator('body').evaluate(body => getComputedStyle(body).backgroundImage)
+  assert.equal(background.includes('crumpled-paper'), !route.startsWith('/works/'), route + ' uses the wrong paper background')
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), route + ' has horizontal overflow')
   const levels = await page.locator('main :is(h1, h2, h3)').evaluateAll(headings => headings.map(item => Number(item.tagName[1])))
   assert.ok(levels.every((level, index) => index === 0 ? level === 1 : level <= levels[index - 1] + 1), route + ' skips a heading level')
@@ -107,13 +111,12 @@ async function smoke(engine, browser) {
       const response = await page.goto(site + route)
       assert.equal(response.status(), 200, route)
       await checkPage(page, route, title)
-      if (route === '/playground.html') {
-        assert.equal(await page.locator('.gallery-photo').count(), 5)
-        assert.equal(await page.locator('.playground-canvas').count(), 0)
-      }
       if (engine === 'chromium') {
         await page.locator('img').evaluateAll(images =>
-          Promise.all(images.filter(image => image.getBoundingClientRect().top < innerHeight)
+          Promise.all(images.filter(image => {
+            const { top, bottom, width, height } = image.getBoundingClientRect()
+            return width > 0 && height > 0 && top < innerHeight && bottom > 0
+          })
             .map(image => image.decode())))
         await page.evaluate(() => document.fonts.ready)
         await page.waitForLoadState('networkidle')
@@ -141,7 +144,7 @@ async function smoke(engine, browser) {
   await checkPage(page, '/works.html', 'Works')
   await page.goForward()
   await checkPage(page, '/works/transpogapo.html', 'TranspoGAPO')
-  const response = await page.goto(site + '/missing.html')
+  const response = await page.goto(site + '/playground.html')
   assert.equal(response.status(), 404)
   await page.getByRole('heading', { name: 'Page not found' }).waitFor()
   await page.close()
@@ -156,7 +159,7 @@ async function repeatNavigation(browser) {
     })
     const failures = watch(page)
     await page.goto(site + '/')
-    for (const section of ['works', 'about', 'playground', 'contact']) {
+    for (const section of ['works', 'about', 'contact']) {
       const route = '/' + section + '.html'
       await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: section, exact: true }).click()
       await checkPage(page, route, routes[route])
@@ -169,28 +172,61 @@ async function repeatNavigation(browser) {
 }
 
 async function regressions(browser) {
-  const page = await browser.newPage({ viewport: mobile })
-  await page.route('**/assets/PlaygroundCanvas-*.js', route => route.abort())
-  await page.goto(site + '/playground.html')
-  await checkPage(page, '/playground.html', 'Playground')
-  await page.locator('.gallery-photo').first().waitFor()
-  assert.equal(await page.locator('.playground-canvas').count(), 0)
-  await page.close()
-
-  const noWebGL = await browser.newPage({ viewport: mobile })
-  await noWebGL.addInitScript(() => {
-    const original = HTMLCanvasElement.prototype.getContext
-    HTMLCanvasElement.prototype.getContext = function (type, ...args) {
-      return type.startsWith('webgl') ? null : original.call(this, type, ...args)
+  for (const [viewport, reducedMotion] of [[desktop, 'no-preference'], [mobile, 'reduce']]) {
+    const loading = await browser.newPage({ viewport, reducedMotion })
+    await loading.addInitScript(() => {
+      let startedAt
+      const bootObserver = new MutationObserver(() => {
+        const boot = document.getElementById('portfolio-boot')
+        if (boot?.dataset.startedAt) startedAt = Number(boot.dataset.startedAt)
+        if (!boot && startedAt !== undefined) {
+          window.portfolioBootElapsed = performance.now() - startedAt
+          bootObserver.disconnect()
+        }
+      })
+      bootObserver.observe(document, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-started-at'] })
+    })
+    let releaseScripts
+    const scriptsReady = new Promise(resolve => { releaseScripts = resolve })
+    await loading.route('**/assets/*.js', async route => {
+      await scriptsReady
+      await route.continue()
+    })
+    try {
+      await loading.goto(site + '/', { waitUntil: 'commit' })
+      const status = loading.getByRole('status').filter({ hasText: 'Loading portfolio…' })
+      await status.waitFor()
+      const scribble = loading.locator('.portfolio-boot-scribble path')
+      assert.equal(await scribble.evaluate(path => getComputedStyle(path).animationName),
+        reducedMotion === 'reduce' ? 'none' : 'portfolio-scribble')
+      assert.equal(await loading.getByRole('navigation', { name: 'Main navigation' }).count(), 0)
+      assert.equal(await loading.getByRole('link', { name: 'Works', exact: true }).isVisible(), false)
+    } finally {
+      releaseScripts()
     }
-  })
-  await noWebGL.goto(site + '/playground.html')
-  await checkPage(noWebGL, '/playground.html', 'Playground')
-  await noWebGL.locator('.gallery-photo').first().waitFor()
-  await noWebGL.close()
+    await checkPage(loading, '/', routes['/'])
+    assert.ok(await loading.evaluate(() => window.portfolioBootElapsed >= 3000))
+    assert.equal(await loading.evaluate(() => sessionStorage.getItem('portfolio-loader-seen')), '1')
+    await loading.reload()
+    await checkPage(loading, '/', routes['/'])
+    await loading.close()
+  }
+
+  const noScript = await browser.newPage({ viewport: mobile, javaScriptEnabled: false })
+  await noScript.goto(site + '/')
+  const noScriptMessage = noScript.locator('.portfolio-boot-recovery noscript p')
+  await noScriptMessage.waitFor()
+  assert.equal(await noScriptMessage.textContent(), 'Enable JavaScript to view this page.')
+  assert.equal(await noScript.getByText('Loading portfolio…').isVisible(), false)
+  assert.equal(await noScript.getByRole('link', { name: 'Works', exact: true }).isVisible(), true)
+  await noScript.close()
 
   const boot = await browser.newPage()
   await boot.route('**/assets/*.js', route => route.abort())
+  await boot.goto(site + '/')
+  await boot.getByRole('status').filter({ hasText: 'This page could not load.' }).waitFor()
+  assert.equal(await boot.locator('.portfolio-boot-scribble').isVisible(), false)
+  assert.equal(await boot.getByRole('link', { name: 'Works', exact: true }).isVisible(), true)
   await boot.goto(site + '/works.html')
   await boot.getByText('This page could not load.', { exact: false }).waitFor()
   assert.equal(await boot.getByRole('link', { name: 'Home', exact: true }).isVisible(), true)
@@ -199,8 +235,8 @@ async function regressions(browser) {
   const normal = await browser.newPage({ viewport: desktop })
   await normal.route('**/assets/portrait-*.webp', route => route.abort())
   await normal.goto(site + '/')
+  await normal.locator('.lanyard .paper-image').waitFor()
   await normal.locator('.lanyard .paper-image img').waitFor({ state: 'detached' })
-  assert.equal(await normal.locator('.lanyard .paper-image').isVisible(), true)
   await normal.mouse.move(1100, 425)
   await normal.waitForFunction(() =>
     new DOMMatrix(getComputedStyle(document.querySelector('.lanyard-assembly')).transform).m41 > 20)
@@ -234,17 +270,6 @@ async function regressions(browser) {
   await normal.mouse.move(ropeBox.x + ropeBox.width / 2, ropeBox.y + 15)
   await normal.mouse.move(ropeBox.x + ropeBox.width / 2, ropeBox.y + ropeBox.height * 0.86, { steps: 6 })
   await normal.waitForFunction(rest => document.querySelector('.about-rope path').getAttribute('d') !== rest, resting)
-  await normal.goto(site + '/playground.html')
-  const gallery = normal.locator('.gallery-stage[data-moving="true"]')
-  await gallery.waitFor()
-  const canvas = gallery.locator('canvas')
-  const before = await canvas.screenshot()
-  await normal.mouse.move(570, 350)
-  await normal.mouse.down()
-  await normal.mouse.move(870, 350, { steps: 10 })
-  assert.equal(await gallery.getAttribute('data-dragging'), 'true')
-  await normal.mouse.up()
-  assert.notDeepEqual(await canvas.screenshot(), before)
   await normal.goto(site + '/works.html')
   await normal.waitForFunction(() => {
     const title = document.querySelector('.ink-title')
@@ -315,31 +340,23 @@ async function regressions(browser) {
   await touch.waitForFunction(() => new DOMMatrix(getComputedStyle(document.querySelector('.lanyard-assembly')).transform).m41 > 8)
   await touchSession.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
   await touch.waitForFunction(() => Math.abs(new DOMMatrix(getComputedStyle(document.querySelector('.lanyard-assembly')).transform).m41) < 2)
-  await touch.goto(site + '/playground.html')
-  const touchGallery = touch.locator('.gallery-stage[data-moving="true"]')
-  await touchGallery.waitFor()
-  await touchSession.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: 215, y: 350 }] })
-  await touchSession.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 150, y: 350 }] })
-  await touchSession.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 80, y: 350 }] })
-  assert.equal(await touchGallery.getAttribute('data-dragging'), 'true')
-  await touchSession.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
   await touch.close()
 }
 
 try {
   const runs = await Promise.allSettled(Object.entries({ chromium, firefox, webkit }).map(async ([engine, type]) => {
-    const browser = await type.launch(engine === 'chromium' ? { args: ['--enable-unsafe-swiftshader'] } : {})
+    const browser = await type.launch()
     try {
       const transfer = await smoke(engine, browser)
       console.log(engine + ': direct routes, redirects, navigation, and both viewports passed')
       if (engine === 'chromium') {
         await writeFile(resolve(results, 'transfer.json'), JSON.stringify(transfer, null, 2))
         await regressions(browser)
-        console.log(engine + ': gallery and lanyard motion, camera, notebook, fallbacks, keyboard, contact, and slow load passed')
+        console.log(engine + ': lanyard motion, camera, notebook, fallbacks, keyboard, contact, and slow load passed')
       }
       if (engine === 'firefox') {
         await repeatNavigation(browser)
-        console.log(engine + ': 20 mobile transitions stayed visible for 10 seconds each')
+        console.log(engine + ': 15 mobile transitions stayed visible for 10 seconds each')
       }
     } finally {
       await browser.close()

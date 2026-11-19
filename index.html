@@ -6,22 +6,100 @@
   <meta name="description" content="Computer Science student and developer building practical web applications.">
   <title>Rholly Cao | Developer</title>
   <link rel="icon" href="/src/assets/logo.svg" type="image/svg+xml">
+  <link rel="preload" href="/src/assets/londrina-solid.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/src/assets/londrina-sketch.woff2" as="font" type="font/woff2" crossorigin>
+  <style>
+    body { margin: 0; }
+
+    #portfolio-boot {
+      position: relative;
+      isolation: isolate;
+      display: grid;
+      min-height: 100vh;
+      min-height: 100svh;
+      place-items: center;
+      box-sizing: border-box;
+      padding: 1.5rem;
+      background: #fff;
+      color: #303030;
+      font: 1rem/1.5 system-ui, sans-serif;
+      text-align: center;
+    }
+
+    .portfolio-boot-paper {
+      position: absolute;
+      z-index: -1;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: grayscale(1);
+      opacity: .72;
+    }
+
+    .portfolio-boot-scribble {
+      display: block;
+      width: clamp(7rem, 34vw, 10rem);
+      height: auto;
+      margin: 0 auto .75rem;
+    }
+
+    .portfolio-boot-recovery { display: none; }
+    .portfolio-boot-recovery a { color: inherit; }
+    #portfolio-boot[data-failed] .portfolio-boot-scribble { display: none; }
+    #portfolio-boot[data-failed] .portfolio-boot-recovery { display: block; }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .portfolio-boot-scribble path {
+        stroke-dasharray: 1;
+        animation: portfolio-scribble 1.55s ease-in-out infinite;
+      }
+    }
+
+    @keyframes portfolio-scribble {
+      0% { stroke-dashoffset: .65; opacity: .8; }
+      38%, 84% { stroke-dashoffset: 0; opacity: 1; }
+      100% { stroke-dashoffset: 0; opacity: 0; }
+    }
+  </style>
+  <noscript>
+    <style>
+      .portfolio-boot-loading { display: none; }
+      .portfolio-boot-recovery { display: block; }
+    </style>
+  </noscript>
 </head>
 <body>
   <div id="root">
-    <main style="font-family:system-ui,sans-serif;padding:2rem">
-      <h1>Rholly Cao</h1>
-      <p id="boot-message">Loading portfolio…</p>
-      <noscript><p>Enable JavaScript to view this page.</p></noscript>
-      <p><a href="%BASE_URL%">Home</a> · <a href="%BASE_URL%works.html">Works</a> · <a href="mailto:caorholly14@gmail.com">Email Rholly</a></p>
+    <main id="portfolio-boot">
+      <img class="portfolio-boot-paper" src="/src/assets/crumpled-paper.avif" alt="">
+      <div>
+        <div class="portfolio-boot-loading">
+          <svg class="portfolio-boot-scribble" viewBox="0 0 160 90" aria-hidden="true">
+            <path d="M14 60C36 35 72 13 83 18C96 24 45 72 29 70C14 68 58 33 91 25C124 17 78 64 59 70C40 77 91 36 120 34C146 32 105 71 87 74C75 76 109 48 136 47C157 46 128 71 113 75C100 79 127 62 147 60"
+              pathLength="1" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <p id="boot-message" role="status">Loading portfolio…</p>
+        </div>
+        <div class="portfolio-boot-recovery">
+          <h1>Rholly Cao</h1>
+          <noscript><p>Enable JavaScript to view this page.</p></noscript>
+          <p><a href="%BASE_URL%">Home</a> · <a href="%BASE_URL%works.html">Works</a> · <a href="mailto:caorholly14@gmail.com">Email Rholly</a></p>
+        </div>
+      </div>
     </main>
   </div>
   <script type="module" src="/src/pages/Home.jsx"></script>
   <script>
+    document.getElementById('portfolio-boot').dataset.startedAt = performance.now()
+
     window.addEventListener('error', function (event) {
       if (event.target.tagName !== 'SCRIPT') return
       const message = document.getElementById('boot-message')
-      if (message) message.textContent = 'This page could not load. Try refreshing or use the links below.'
+      if (message) {
+        document.getElementById('portfolio-boot').setAttribute('data-failed', '')
+        message.textContent = 'This page could not load. Try refreshing or use the links below.'
+      }
     }, true)
   </script>
 </body>

@@ -38,7 +38,7 @@
   backface-visibility: hidden;
 }
 .notebook-cover {
-  cursor: pointer;
+  cursor: var(--scrapbook-pointer, pointer);
 }
 .notebook-back { transform: rotateY(180deg); background: #e7dcc0; }
 .notebook-cover::before {
