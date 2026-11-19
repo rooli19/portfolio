@@ -1,6 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { chapters } from '../content/transpogapo'
-import { Plane } from '../components/TranspoInteractions'
 import TranspoChapters from '../components/TranspoChapters'
 import { OpeningScene, StoryBackdrop, StoryText } from '../components/TranspoScenes'
 import './transpogapo.css'
@@ -13,7 +12,6 @@ function Spread({ chapter, index }) {
         <StoryText as="h2" id={`${chapter.id}-heading`} className="tg-heading" effect="heading" stagger={1}>{chapter.title}</StoryText>
       </header>
       <TranspoChapters index={index}/>
-      {index === 0 && <a className="tg-route-link" href="#people"><Plane/> Follow the journey ↓</a>}
       {index === chapters.length - 1 && <a className="tg-route-link" href="#title">↑ Back to the beginning</a>}
     </div>
   </section>

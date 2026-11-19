@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { mediaPath } from '../sitePath'
 import MikaSketch from './MikaSketch'
-import { journey } from '../content/transpogapo'
+import { journey, screens } from '../content/transpogapo'
 import { RouteDrawing } from './TranspoScenes'
 
 export function Plane() {
@@ -46,116 +46,192 @@ export function Journey() {
   </div>
 }
 
-export function PaperComparison() {
+function WireMap({ traced, ...props }) {
+  return <svg viewBox="0 0 560 467" aria-hidden="true" {...props}>
+    <rect width="560" height="467" fill="#eef0f2"/>
+    <path d="M0 90 50 116 82 163 78 204 125 274 101 328 145 387 172 467H0Z" fill="#d4d9df"/>
+    <g fill="#e2e5e9">
+      <path d="m124 0 117 0 12 67-81 77-70-44Z"/>
+      <path d="m157 249 66-76 41 2 47 55-56 84-75 9Z"/>
+      <path d="m343 0 134 0 33 105-72 46-84-42Z"/>
+      <path d="m371 237 91-58 98 82v111l-129 19-61-62Z"/>
+    </g>
+    <g className="tg-wire-roads">
+      <path d="M48 0c37 130 36 194 87 255s69 142 116 212M195 0c38 98 37 142-13 222s4 173 16 245M377 0c-8 91-34 148-77 203s-67 163-56 264M478 0c-53 83-18 153-84 214s-83 149-70 253M0 69c141 60 223 57 310 30s171-39 250-10M72 200c63 13 170 12 244-44s169-54 244-26M113 324c128 7 200-39 289-40s109 10 158 22M142 398c70-33 203-20 271-35s98-17 147-8"/>
+      <path d="m233 103 118 160m-195-52 146 151m75-204 150 112M278 65l164 29m-212 77 55-60m-96 207 29-49m100 91 27 56"/>
+    </g>
+    <path className="tg-wire-route" data-traced={traced || undefined} pathLength="1" d="M266 250c10 7 24 5 33-2l17-16-17-19-17 5"/>
+    <g className="tg-wire-pins">
+      <circle cx="266" cy="250" r="7"/><circle cx="282" cy="218" r="7"/>
+    </g>
+  </svg>
+}
+
+function DesktopWireframe({ traced }) {
+  return <svg viewBox="0 0 1440 1000" role="img" aria-label="Grayscale planner wireframe with trip fields, a map, and suggested journeys">
+    <rect width="1440" height="1000" fill="#fff"/>
+    <WireMap x="320" y="67" width="1120" height="933" traced={traced}/>
+    <g fill="#d9dde2">
+      <rect x="63" y="20" width="27" height="27" rx="7"/>
+      <rect x="102" y="24" width="125" height="19" rx="9.5"/>
+      <rect x="788" y="28" width="39" height="11" rx="5.5"/>
+      <rect x="851" y="28" width="44" height="11" rx="5.5"/>
+      <rect x="922" y="28" width="49" height="11" rx="5.5"/>
+      <rect x="999" y="28" width="40" height="11" rx="5.5"/>
+      <rect x="1066" y="28" width="41" height="11" rx="5.5"/>
+      <rect x="1151" y="11" width="168" height="44" rx="22"/>
+      <circle cx="1358" cy="33" r="22"/>
+      <rect x="50" y="193" width="100" height="13" rx="6.5"/>
+      <rect x="50" y="216" width="236" height="9" rx="4.5"/>
+      <rect x="50" y="232" width="188" height="9" rx="4.5"/>
+      <rect x="16" y="383" width="287" height="40" rx="20"/>
+    </g>
+    <g fill="#eceef1">
+      <rect x="12" y="77" width="145" height="46" rx="23"/>
+      <rect x="163" y="77" width="144" height="46" rx="23"/>
+      <rect x="12" y="129" width="145" height="36" rx="18"/>
+      <rect x="16" y="262" width="287" height="110" rx="20"/>
+    </g>
+    <rect x="163" y="129" width="144" height="36" rx="18" fill="#c8cdd4"/>
+    <g fill="#fff" stroke="#c7cdd4" strokeWidth="2">
+      <rect x="53" y="275" width="196" height="39" rx="19.5"/>
+      <rect x="53" y="320" width="196" height="39" rx="19.5"/>
+      <rect x="336" y="637" width="280" height="340" rx="20"/>
+    </g>
+    <g fill="#d9dde2">
+      <rect x="371" y="655" width="124" height="12" rx="6"/>
+      <rect x="371" y="723" width="198" height="10" rx="5"/>
+      <rect x="371" y="746" width="159" height="10" rx="5"/>
+      <rect x="350" y="779" width="105" height="10" rx="5"/>
+    </g>
+    <g fill="#edf0f2">
+      <rect x="349" y="801" width="254" height="109" rx="15"/>
+      <rect x="349" y="920" width="254" height="45" rx="15"/>
+    </g>
+  </svg>
+}
+
+function MobileWireframe({ traced }) {
+  return <svg viewBox="0 0 402 874" role="img" aria-label="Grayscale mobile wireframe with a map and an ordered walking and jeepney itinerary">
+    <rect width="402" height="874" fill="#fff"/>
+    <WireMap x="0" y="65" width="402" height="142" preserveAspectRatio="xMidYMid slice" traced={traced}/>
+    <rect x="0" y="179" width="402" height="634" rx="18" fill="#fff"/>
+    <g fill="#d9dde2">
+      <rect x="23" y="19" width="25" height="25" rx="5"/>
+      <rect x="59" y="24" width="110" height="15" rx="7.5"/>
+      <circle cx="310" cy="32" r="21"/><circle cx="361" cy="32" r="21"/>
+      <rect x="183" y="186" width="36" height="4" rx="2"/>
+      <rect x="15" y="204" width="157" height="14" rx="7"/>
+      <rect x="12" y="245" width="88" height="22" rx="11"/>
+      <rect x="287" y="245" width="104" height="22" rx="11"/>
+      <rect x="19" y="310" width="364" height="4" rx="2"/>
+      <rect x="175" y="326" width="52" height="10" rx="5"/>
+      <rect x="0" y="350" width="402" height="31" fill="#edf0f2"/>
+    </g>
+    {[390, 519, 674].map((y, index) => <g key={y}>
+      <rect x="10" y={y} width="382" height={index === 1 ? 146 : 120} rx="13" fill="#fff" stroke="#d9dde2"/>
+      <rect x="18" y={y + 8} width="34" height={index === 1 ? 130 : 104} rx="8" fill={index === 1 ? '#aeb7c2' : '#cdd3da'}/>
+      <g fill="#d9dde2">
+        <rect x="63" y={y + 14} width="126" height="10" rx="5"/>
+        <rect x="314" y={y + 14} width="64" height="9" rx="4.5"/>
+        <circle cx="73" cy={y + 52} r="10"/>
+        <rect x="91" y={y + 47} width="180" height="10" rx="5"/>
+        <circle cx="73" cy={y + 86} r="10"/>
+        <rect x="91" y={y + 81} width="148" height="10" rx="5"/>
+      </g>
+    </g>)}
+    <path d="M0 813H402" stroke="#d9dde2"/>
+    <g fill="#d9dde2">
+      {[40, 120, 201, 281, 361].map(x => <g key={x}>
+        <rect x={x - 9} y="825" width="18" height="18" rx="5"/>
+        <rect x={x - 18} y="850" width="36" height="6" rx="3"/>
+      </g>)}
+    </g>
+  </svg>
+}
+
+function ComparisonView({ device }) {
   const [split, setSplit] = useState(45)
   const [traced, setTraced] = useState(false)
-  const [folded, setFolded] = useState(false)
   const [missing, setMissing] = useState(false)
+  const live = missing ? 0 : split
+  const mobile = device === 'mobile'
+  const Wireframe = mobile ? MobileWireframe : DesktopWireframe
+  const screen = screens.find(screen => screen.id === (mobile ? 'mobile' : 'planner'))
 
   function toggleTrace() {
     setTraced(!traced)
     if (!traced) setSplit(0)
   }
 
-  return <section className="tg-paper-comparison" aria-labelledby="tg-paper-heading">
-    <h3 id="tg-paper-heading">From sketch to screen</h3>
-    <div className="tg-comparison-stage" style={{ '--tg-split': `${split}%` }}
-      data-folded={folded || undefined} data-split={(!folded && !missing && split > 0 && split < 100) || undefined}>
-      {missing
-        ? <p className="tg-comparison-missing">Planner screenshot unavailable.</p>
-        : <img src={mediaPath('/photos/transpogapo-planner.png')} alt="Current TranspoGAPO planner showing a map and suggested journeys" loading="lazy" onError={() => setMissing(true)}/>}
-      <div className="tg-sketch-reveal" aria-hidden="true">
-        <div className="tg-sketch-sheet">
-          <svg viewBox="0 0 880 610">
-            <g className="tg-sketch-ink" transform="scale(1 1.32)">
-              <path d="M36 31Q440 26 841 33L845 425Q415 433 37 423Z M38 75L841 73 M266 76L263 425 M55 158L238 156 239 189 54 190Z M55 203L238 204 238 238 56 239Z M55 258L238 257 239 298 54 296Z"/>
-              <path d="M271 273Q414 278 481 236T614 187Q691 201 844 136 M311 424Q421 340 406 264T389 75 M545 425Q574 353 544 282T544 74 M269 327Q453 344 555 330T846 281 M701 425L669 331 689 230 728 167 706 75 M268 132Q468 141 587 124T839 113" opacity=".45"/>
-              <path d="M357 363Q459 331 476 278T534 218Q627 202 668 144" className="tg-pencil-line" pathLength="1" data-traced={traced || undefined}/>
-              <circle cx="357" cy="363" r="10"/><circle cx="668" cy="144" r="10"/>
-            </g>
-            <g className="tg-sketch-label" transform="scale(1 1.32)">
-              <text x="56" y="61">TranspoGAPO</text>
-              <text x="58" y="130">Plan your trip</text>
-              <text x="65" y="180">Starting point</text>
-              <text x="65" y="224">Destination</text>
-              <text x="75" y="284">Find routes →</text>
-              <text x="374" y="389">Board here</text>
-              <text x="682" y="151">Arrive</text>
-            </g>
-          </svg>
-        </div>
+  return <div className="tg-comparison-view" data-device={device}>
+    <div className="tg-comparison-stage" style={{ '--tg-split': `${live}%` }}
+      data-split={(live > 0 && live < 100) || undefined}>
+      {!missing && <img src={mediaPath('/photos/' + screen.file)}
+        alt={screen.alt} aria-hidden={live === 0}
+        loading="lazy" onError={() => setMissing(true)}/>}
+      <div className="tg-wire-reveal" aria-hidden={live === 100}>
+        <Wireframe traced={traced}/>
       </div>
     </div>
+    {missing && <p className="tg-caption" role="status">Planner screenshot unavailable.</p>}
     <div className="tg-comparison-slider">
-      <span aria-hidden="true">Paper sketch</span>
-      <input type="range" min="0" max="100" value={split} disabled={folded || missing}
-        aria-label="Compare sketch and live planner" aria-valuetext={`${split}% live planner`}
+      <span>Wireframe</span>
+      <input type="range" min="0" max="100" value={live} disabled={missing}
+        aria-label="Compare wireframe and live planner" aria-valuetext={`${live}% live planner`}
         onChange={event => setSplit(Number(event.target.value))}/>
-      <span aria-hidden="true">Live planner</span>
+      <span>Live planner</span>
     </div>
-    <div className="tg-paper-actions">
-      <button type="button" aria-pressed={traced} disabled={folded} onClick={toggleTrace}>Trace the route</button>
-      <button type="button" aria-pressed={folded} onClick={() => setFolded(!folded)}>{folded ? 'Unfold the sketch' : 'Fold the sketch away'}</button>
-    </div>
-  </section>
+    <button type="button" className="tg-wire-trace" aria-pressed={traced} onClick={toggleTrace}>Trace the route</button>
+  </div>
 }
 
-const wireframeStates = [
-  { title: 'Plan a trip', panel: null },
-  { title: 'Compare trips', panel: ['Suggested journeys', 'Tricycle · recommended', 'Walk only', 'Jeepney + walk'] },
-  { title: 'Read directions', panel: ['Trip directions', 'Walk to the jeepney stop', 'Ride the J-03 jeepney', 'Walk to your destination'] },
-]
+export function WireframeComparison() {
+  const [device, setDevice] = useState('mobile')
+
+  return <section className="tg-wire-comparison" aria-labelledby="tg-wire-comparison-heading">
+    <h3 id="tg-wire-comparison-heading">From sketch to screen</h3>
+    <div className="tg-comparison-devices" role="group" aria-label="Comparison layout">
+      <button type="button" aria-pressed={device === 'mobile'} onClick={() => setDevice('mobile')}>Mobile</button>
+      <button type="button" aria-pressed={device === 'desktop'} onClick={() => setDevice('desktop')}>Desktop</button>
+    </div>
+    <ComparisonView key={device} device={device}/>
+  </section>
+}
 
 export function Wireframes() {
-  const [selected, setSelected] = useState(0)
-  const { title, panel } = wireframeStates[selected]
-
-  return <section aria-label="Low-fidelity wireframes of the live app">
-    <p className="tg-caption">Low-fidelity redraw of the live TranspoGAPO map and planner.</p>
-    <div className="tg-screen-tabs">{wireframeStates.map((state, index) =>
-      <button key={state.title} aria-pressed={selected === index} onClick={() => setSelected(index)}>{state.title}</button>
-    )}</div>
-    <figure key={title} className="tg-live-wire tg-step-content" aria-label={title}>
-      <div className="tg-live-wire-header"><strong>TranspoGAPO</strong><span>Routes · Terminals · Spots</span></div>
-      <div className="tg-live-wire-body">
-        <div className="tg-live-wire-sidebar">
-          <span>Jeepneys · Terminals</span>
-          <span>Landmarks · Get There</span>
-          <strong>Plan Your Trip</strong>
-          <span>Start · SM City Olongapo Central</span>
-          <span>Destination · Ulo ng Apo</span>
-          <strong className="tg-live-wire-action">Get Directions</strong>
+  return <section className="tg-wire-redraw" aria-labelledby="tg-wire-redraw-heading">
+    <h3 id="tg-wire-redraw-heading">Low-fidelity redraw</h3>
+    <div className="tg-wireframes">
+      <article className="tg-wire-card">
+        <h4>Plan a trip</h4>
+        <WireMap className="tg-wire-card-map" preserveAspectRatio="xMidYMid slice"/>
+        <div className="tg-wire-fields">
+          <div><span>Start</span><strong>SM City Olongapo Central</strong></div>
+          <div><span>Destination</span><strong>Ulo ng Apo</strong></div>
         </div>
-        <div className="tg-live-wire-map">
-          <svg viewBox="0 0 300 200" preserveAspectRatio="none" aria-hidden="true">
-            <path d="M0 120 65 84l56 10 71-34 108 20M20 0l68 200M130 0l-18 200M265 0l-58 200M0 153l300 1M0 40l300 5" stroke="#ccc" strokeWidth="7" fill="none"/>
-            <path d="M62 108 89 84l32 10 71-34 49 9" stroke="#555" strokeWidth="3" strokeDasharray="7 5" fill="none"/>
-            <circle cx="62" cy="108" r="6" fill="#555"/><circle cx="241" cy="69" r="6" fill="#555"/>
-          </svg>
-          <span className="tg-live-wire-map-label">Olongapo map</span>
-          {panel && <div className="tg-live-wire-panel"><strong>{panel[0]}</strong>{panel.slice(1).map(row => <span key={row}>{row}</span>)}</div>}
-        </div>
-      </div>
-    </figure>
-  </section>
-}
-
-const prototype = [
-  ['Open the map', 'Begin with the map and a clear way to plan a trip.', 'Choose a journey'],
-  ['Choose start & destination', 'Example journey: SM City Olongapo Central → Ulo ng Apo. Search, current location, and map pins are entry points in the actual app.', 'Compare trip options'],
-  ['Compare the options', 'Review estimated time, fare, and walking together. This reconstruction shows the decision flow; it does not calculate a route.', 'Inspect the itinerary'],
-  ['Board → ride → walk', 'Inspect the boarding point, vehicle leg, alighting point, and final walk before setting off.', null],
-]
-export function Prototype() {
-  const [step, setStep] = useState(0)
-  const [title, text, action] = prototype[step]
-  return <section className="tg-prototype" aria-label="Reconstructed planning prototype">
-    <div className="tg-prototype-top"><span>Reconstructed low-fidelity flow</span><span>{step + 1} / 4</span></div>
-    <div aria-live="polite"><div key={step} className="tg-step-content"><h3>{title}</h3><p>{text}</p></div></div>
-    <div key={step} className="tg-prototype-visual" aria-label="Simplified prototype screen">
-      <svg viewBox="0 0 100 80" aria-hidden="true"><path d="m0 20 100 35M20 0l40 80M85 0 35 80" stroke="#d6d0be" strokeWidth="8" fill="none"/><path d="M20 25 45 35 65 60" stroke="#665a3e" strokeWidth="3" strokeDasharray="4 3" fill="none"/><circle cx="20" cy="25" r="5" fill="#315b48"/><circle cx="65" cy="60" r="5" fill="#665a3e"/></svg>
-      <div className="tg-prototype-fields">{(step === 0 ? ['Start: choose a place', 'Destination: choose a place'] : step === 1 ? ['Start: SM City Olongapo Central', 'Destination: Ulo ng Apo'] : step === 2 ? ['Recommended · review estimates', 'Alternative · compare walking'] : ['Walk to boarding point', 'Ride → alight → final walk']).map(label => <span key={label}>{label}</span>)}</div>
+        <span className="tg-wire-outline">Get directions</span>
+      </article>
+      <article className="tg-wire-card">
+        <h4>Compare trips</h4>
+        <WireMap className="tg-wire-card-map" preserveAspectRatio="xMidYMid slice" traced/>
+        <strong className="tg-wire-list-heading">Suggested journeys</strong>
+        <ul className="tg-wire-rows">
+          <li><strong>Tricycle</strong><span>Recommended</span></li>
+          <li><strong>Walk only</strong></li>
+          <li><strong>Jeepney + walk</strong></li>
+        </ul>
+      </article>
+      <article className="tg-wire-card">
+        <h4>Read directions</h4>
+        <WireMap className="tg-wire-card-map" preserveAspectRatio="xMidYMid slice" traced/>
+        <strong className="tg-wire-list-heading">Trip directions</strong>
+        <ol className="tg-wire-steps">
+          <li>Walk to the jeepney stop</li>
+          <li>Ride the J-03 jeepney</li>
+          <li>Walk to your destination</li>
+        </ol>
+      </article>
     </div>
-    <div className="tg-prototype-actions">{action && <button className="tg-button" onClick={() => setStep(step + 1)}>{action}<span aria-hidden="true"> →</span></button>}<button onClick={() => setStep(0)}>Reset prototype</button></div>
   </section>
 }
