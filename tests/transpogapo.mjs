@@ -21,6 +21,13 @@ try {
   assert.ok(page.url().endsWith('#overview'))
   assert.equal(await page.locator('.tg-tabs a').count(), 8)
   assert.equal(await page.locator('.tg-spread').count(), 8)
+  const storyText = page.locator('.tg-story-text')
+  assert.ok(await storyText.count() > 8)
+  assert.ok(await storyText.evaluateAll(blocks =>
+    blocks.every(block => {
+      const style = getComputedStyle(block)
+      return style.opacity === '1' && style.transform === 'none' && style.filter === 'none'
+    })))
   assert.equal(await page.getByRole('link', { name: /Follow the journey/ }).count(), 0)
   const appLink = page.getByRole('link', { name: /Open the working app/ })
   assert.equal(await appLink.getAttribute('href'), 'https://transpogapo.web.app/map')
@@ -112,9 +119,14 @@ try {
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${id} overflows at ${width}`)
     }
   }
+  await page.setViewportSize({ width: 320, height: 880 })
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto(origin + '/works/transpogapo.html?direct=1#overview')
+  await page.locator('#overview-heading').waitFor()
+  await page.waitForFunction(() => getComputedStyle(document.querySelector('#overview-heading')).opacity === '1')
+  await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto(origin + '/works/transpogapo.html#unknown')
   await page.getByRole('heading', { name: 'A little less lost.' }).waitFor()
-  await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
   await page.locator('.tg-title-jeepney').evaluate(image => image.decode())
   const exitScroll = await page.locator('.tg-title-runway').evaluate(runway => runway.offsetHeight * .94)
@@ -127,27 +139,75 @@ try {
   await page.waitForFunction(() => scrollY >= 150 && getComputedStyle(document.querySelector('.tg-title-type')).transform !== 'none')
   await page.mouse.wheel(0, -240)
   await page.waitForFunction(() => scrollY === 0 && getComputedStyle(document.querySelector('.tg-title-type')).transform === 'none')
+
+  async function placeText(selector, edge, viewportLine) {
+    await page.locator(selector).evaluate((block, { edge, viewportLine }) => {
+      const style = getComputedStyle(block)
+      const shift = style.transform === 'none' ? 0 : new DOMMatrix(style.transform).m42
+      window.scrollBy({ top: block.getBoundingClientRect()[edge] - shift - innerHeight * viewportLine, behavior: 'instant' })
+    }, { edge, viewportLine })
+  }
+
+  async function checkTextMotion(selector, expectedOpacity, direction = 0) {
+    await page.waitForFunction(({ selector, expectedOpacity, direction }) => {
+      const style = getComputedStyle(document.querySelector(selector))
+      if (Math.abs(Number(style.opacity) - expectedOpacity) > .04) return false
+      if (direction === 0) return style.filter === 'none' && (expectedOpacity !== 1 || style.transform === 'none')
+      return style.filter.startsWith('blur(') && parseFloat(style.filter.slice(5)) <= 3 &&
+        Math.sign(new DOMMatrix(style.transform).m42) === direction
+    }, { selector, expectedOpacity, direction })
+  }
+
+  const overviewHeading = '#overview-heading'
+  const overviewParagraph = '#overview .tg-cover-copy > p:nth-child(2)'
+  await checkTextMotion(overviewHeading, 0)
+  await checkTextMotion(overviewParagraph, 0)
+  await placeText(overviewParagraph, 'top', .88)
+  await checkTextMotion(overviewParagraph, .5, 1)
+  await checkTextMotion(overviewHeading, 1)
+  assert.ok(await page.locator('.tg-cover-desktop img').evaluate(image => {
+    const { top, bottom } = image.getBoundingClientRect()
+    return top < innerHeight && bottom > 0 &&
+      [image, image.closest('.tg-cover-collage'), image.closest('.tg-chapter-inner')].every(element => {
+        const style = getComputedStyle(element)
+        return style.opacity === '1' && style.filter === 'none'
+      })
+  }))
+  await page.keyboard.press('Tab')
+  const paragraph = page.locator(overviewParagraph)
+  await paragraph.evaluate(block => {
+    block.tabIndex = -1
+    block.focus({ preventScroll: true })
+  })
+  await placeText(overviewParagraph, 'top', .88)
+  assert.equal(await paragraph.evaluate(block => block.matches(':focus-visible')), true)
+  await checkTextMotion(overviewParagraph, 1)
+  await paragraph.evaluate(block => {
+    block.blur()
+    block.removeAttribute('tabindex')
+  })
+  await checkTextMotion(overviewParagraph, .5, 1)
+  await placeText(overviewParagraph, 'top', .65)
+  await checkTextMotion(overviewParagraph, 1)
+
   const people = await page.locator('#people').boundingBox()
   await page.mouse.wheel(0, people.y - 80)
   await page.locator('.tg-tabs a[href="#people"][aria-current="location"]').waitFor({ state: 'attached' })
   const progress = await page.locator('.tg-route').evaluate(route => Number(route.style.getPropertyValue('--tg-progress')))
   assert.ok(progress > 0 && progress < 1)
   assert.ok(page.url().endsWith('#unknown'), 'Scrolling preserves the current history entry')
-  await page.waitForFunction(() => getComputedStyle(document.querySelector('#people-heading')).opacity === '1')
+  const peopleHeading = '#people-heading'
+  await checkTextMotion(peopleHeading, 1)
   const readingScroll = await page.evaluate(() => scrollY)
-  const headingBounds = await page.locator('#people-heading').evaluate(heading => {
-    const { top, bottom } = heading.getBoundingClientRect()
-    return { middle: scrollY + top - innerHeight * .52, exit: scrollY + bottom - innerHeight * .04 }
-  })
-  await page.evaluate(top => window.scrollTo({ top, behavior: 'instant' }), headingBounds.middle)
-  await page.waitForFunction(() => {
-    const opacity = Number(getComputedStyle(document.querySelector('#people-heading')).opacity)
-    return opacity > .7 && opacity < .97
-  })
-  await page.evaluate(top => window.scrollTo({ top, behavior: 'instant' }), headingBounds.exit)
-  await page.waitForFunction(() => Number(getComputedStyle(document.querySelector('#people-heading')).opacity) < .9)
+  const halfwayOut = await page.evaluate(() => Math.min(innerHeight * .24, 64) / innerHeight / 2)
+  await placeText(peopleHeading, 'bottom', halfwayOut)
+  await checkTextMotion(peopleHeading, .5, -1)
+  await placeText(peopleHeading, 'bottom', -.12)
+  await checkTextMotion(peopleHeading, 0)
+  await placeText(peopleHeading, 'bottom', halfwayOut)
+  await checkTextMotion(peopleHeading, .5, -1)
   await page.evaluate(top => window.scrollTo({ top, behavior: 'instant' }), readingScroll)
-  await page.waitForFunction(() => getComputedStyle(document.querySelector('#people-heading')).opacity === '1')
+  await checkTextMotion(peopleHeading, 1)
   await route.getByText('Chapters', { exact: true }).press('Enter')
   await route.locator('a[href="#next"]').focus()
   await page.keyboard.press('Enter')

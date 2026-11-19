@@ -1,6 +1,6 @@
 import { useId, useState } from 'react'
 import { motion } from 'motion/react'
-import { Cutout, StoryMeter, useStoryReducedMotion } from './TranspoScenes'
+import { Cutout, StoryMeter, StoryText, useStoryReducedMotion } from './TranspoScenes'
 import { evaluationCategories, evaluationQuestions, painPoints, plannerBenchmark } from '../content/transpogapo'
 
 function StoryChart({ title, views, children }) {
@@ -18,7 +18,7 @@ function StoryChart({ title, views, children }) {
   }
 
   return <section className="tg-chart" aria-labelledby={heading}>
-    <h3 id={heading}>{title}</h3>
+    <StoryText as="h3" id={heading}>{title}</StoryText>
     <div className="tg-chart-body">
       <div className="tg-chart-data">
         {views.length > 1 && <div className="tg-chart-views" role="group" aria-label={`${title} view`}>
@@ -79,8 +79,8 @@ const benchmarkViews = [{
 
 export function BenchmarkChart() {
   return <StoryChart title="How quickly did the planner respond?" views={benchmarkViews}>
-    <p>Across 300 timed runs, the overall mean was <strong>171.228 ms</strong>. The road graph was already loaded and external routing was off. First-load and network time were excluded.</p>
-    <p>Only <strong>2 of 15</strong> transfer-reference cases returned a top-ranked option with a vehicle transfer. The timing results measure computation speed. Transfer quality still needs field verification.</p>
+    <StoryText>Across 300 timed runs, the overall mean was <strong>171.228 ms</strong>. The road graph was already loaded and external routing was off. First-load and network time were excluded.</StoryText>
+    <StoryText>Only <strong>2 of 15</strong> transfer-reference cases returned a top-ranked option with a vehicle transfer. The timing results measure computation speed. Transfer quality still needs field verification.</StoryText>
   </StoryChart>
 }
 
@@ -94,6 +94,6 @@ const ratingViews = [
 
 export function RatingsChart() {
   return <StoryChart title="How did users rate the app?" views={ratingViews}>
-    <p>The 21 respondents rated the app after exploring it. These ratings capture their experience using the system. Missed rides, fares paid, and real trip times were outside the evaluation.</p>
+    <StoryText>The 21 respondents rated the app after exploring it. These ratings capture their experience using the system. Missed rides, fares paid, and real trip times were outside the evaluation.</StoryText>
   </StoryChart>
 }

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { mediaPath } from '../sitePath'
 import MikaSketch from './MikaSketch'
 import { journey, screens } from '../content/transpogapo'
-import { RouteDrawing } from './TranspoScenes'
+import { RouteDrawing, StoryText } from './TranspoScenes'
 
 export function Plane() {
   return <svg viewBox="0 0 100 80" fill="none" aria-hidden="true"><path d="M5 33 94 5 64 73 45 49 27 61 29 42Z" fill="#fffdf3" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/><path d="m5 33 40 16L94 5 29 42l-2 19 18-12 19 24L55 40 94 5" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="m29 42 65-37-49 44-18 12Z" fill="#e1ddc9" stroke="currentColor" strokeWidth="1.5"/></svg>
@@ -25,7 +25,7 @@ export function Photo({ file, alt, caption, className = '' }) {
     {failed ? <div className="tg-image-missing">Image unavailable. {alt}</div> : <button ref={trigger} className="tg-photo-open" aria-label={'Enlarge ' + caption} onClick={() => setOpen(true)}>
       <img src={src} alt={alt} onError={() => setFailed(true)} loading="eager"/><span aria-hidden="true">↗</span>
     </button>}
-    <figcaption>{caption}</figcaption>
+    <StoryText as="figcaption">{caption}</StoryText>
     {open && <dialog ref={dialog} className="tg-lightbox" aria-label={caption} onCancel={() => setOpen(false)} onKeyDown={event => { if (event.key === 'Tab') { event.preventDefault(); dialog.current.querySelector('button').focus() } }} onClick={event => { if (event.target === event.currentTarget) setOpen(false) }}>
       <button autoFocus onClick={() => setOpen(false)} aria-label="Close screenshot">Close ×</button>
       <img src={src} alt={alt}/><p>{caption}</p>
@@ -42,7 +42,7 @@ export function Journey() {
   return <div className="tg-journey">
     <RouteDrawing activeStop={selected}/>
     <div className="tg-stops" aria-label="Journey stages">{journey.map(([name], index) => <button key={name} aria-pressed={selected === index} onClick={() => setSelected(index)}><span aria-hidden="true">{index + 1}</span>{index + 1}. {name}</button>)}</div>
-    <div className="tg-journey-detail" aria-live="polite"><span className="tg-eyebrow">{label}</span><div key={selected} className="tg-step-content"><div className="tg-journey-question"><div><h3>{question}</h3><p>{friction}</p></div><div className="tg-mood"><MikaSketch mood={mood}/><span>{mood}</span></div></div><p className="tg-response"><strong>Design response</strong>{response}</p></div></div>
+    <div className="tg-journey-detail" aria-live="polite"><StoryText as="span" className="tg-eyebrow">{label}</StoryText><div key={selected} className="tg-step-content"><div className="tg-journey-question"><div><StoryText as="h3">{question}</StoryText><StoryText>{friction}</StoryText></div><div className="tg-mood"><MikaSketch mood={mood}/><span>{mood}</span></div></div><StoryText className="tg-response"><strong>Design response</strong>{response}</StoryText></div></div>
   </div>
 }
 
@@ -190,7 +190,7 @@ export function WireframeComparison() {
   const [device, setDevice] = useState('mobile')
 
   return <section className="tg-wire-comparison" aria-labelledby="tg-wire-comparison-heading">
-    <h3 id="tg-wire-comparison-heading">From sketch to screen</h3>
+    <StoryText as="h3" id="tg-wire-comparison-heading">From sketch to screen</StoryText>
     <div className="tg-comparison-devices" role="group" aria-label="Comparison layout">
       <button type="button" aria-pressed={device === 'mobile'} onClick={() => setDevice('mobile')}>Mobile</button>
       <button type="button" aria-pressed={device === 'desktop'} onClick={() => setDevice('desktop')}>Desktop</button>
@@ -201,7 +201,7 @@ export function WireframeComparison() {
 
 export function Wireframes() {
   return <section className="tg-wire-redraw" aria-labelledby="tg-wire-redraw-heading">
-    <h3 id="tg-wire-redraw-heading">Low-fidelity redraw</h3>
+    <StoryText as="h3" id="tg-wire-redraw-heading">Low-fidelity redraw</StoryText>
     <div className="tg-wireframes">
       <article className="tg-wire-card">
         <h4>Plan a trip</h4>

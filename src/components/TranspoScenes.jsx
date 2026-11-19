@@ -13,38 +13,9 @@ export function useStoryReducedMotion() {
   return useSyncExternalStore(observeMotionPreference, () => motionPreference.matches)
 }
 
-const textTravel = {
-  heading: [24, -12],
-  body: [12, -6],
-  list: [16, -8],
-  quote: [30, -14],
-}
-
-const readingStages = [0, 1 / 3, 2 / 3, 1]
-
-export function StoryText({ as = 'p', className = '', stagger = 0, effect = 'body', ...props }) {
-  const text = useRef(null)
-  const reduce = useStoryReducedMotion()
-  const Tag = motion[as]
-  const [enterY, exitY] = textTravel[effect]
-  const headline = effect === 'heading'
-  const quote = effect === 'quote'
-  const { scrollYProgress } = useScroll({
-    target: text,
-    offset: [`start ${.9 - stagger * .025}`, `start ${(quote ? .32 : .38) - stagger * .035}`, 'end .1', 'end start'],
-  })
-  const y = useTransform(scrollYProgress, readingStages, [enterY, 0, 0, exitY])
-  const opacity = useTransform(scrollYProgress, readingStages, [headline || quote ? .55 : .67, 1, 1, .58])
-  const clipPath = useTransform(scrollYProgress, [0, 1 / 3], ['inset(0 0 24% 0)', 'inset(0 0 0% 0)'])
-  const filter = useTransform(scrollYProgress, [0, 1 / 3], ['blur(3px)', 'blur(0px)'])
-
-  return <Tag {...props} ref={text} className={`tg-text-reveal ${className}`}
-    style={{
-      y: reduce ? 0 : y,
-      opacity: reduce ? 1 : opacity,
-      clipPath: reduce || !headline ? 'none' : clipPath,
-      filter: reduce || !(headline || quote) ? 'none' : filter,
-    }}/>
+export function StoryText({ as = 'p', className = '', ...props }) {
+  const Tag = as
+  return <Tag {...props} className={`tg-story-text ${className}`}/>
 }
 
 export function Cutout({ name, className, style, eager = false }) {
@@ -123,7 +94,6 @@ export function OpeningScene() {
     <div className="tg-title-stage">
       <a className="tg-all-projects" href={sitePath('works.html')}>← All projects</a>
       <motion.div className="tg-title-type" style={{ y: reduce ? 0 : titleY, opacity: reduce ? 1 : titleOpacity }}>
-        <p className="tg-title-caption">Olongapo City, Philippines <span aria-hidden="true">/</span> 2026</p>
         <h1>TranspoGAPO</h1>
         <p className="tg-title-description">Planning jeepney and tricycle trips in Olongapo City.</p>
       </motion.div>
@@ -169,13 +139,4 @@ export function StoryMeter({ value }) {
   return <span ref={meter} className="tg-meter" aria-hidden="true">
     <motion.span style={{ scaleX: reduce ? value : fill }}/>
   </span>
-}
-
-export function StoryStatistic({ children }) {
-  const statistic = useRef(null)
-  const reduce = useStoryReducedMotion()
-  const { scrollYProgress } = useScroll({ target: statistic, offset: ['start .98', 'end .66'] })
-  const y = useTransform(scrollYProgress, [0, 1], [32, 0])
-  const opacity = useTransform(scrollYProgress, [0, 1], [.55, 1])
-  return <motion.strong ref={statistic} style={reduce ? undefined : { y, opacity }}>{children}</motion.strong>
 }
