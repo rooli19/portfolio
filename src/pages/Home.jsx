@@ -9,7 +9,7 @@ import InkTitle from '../components/InkTitle'
 import { sitePath } from '../sitePath'
 import './home.css'
 
-function Home() {
+function Home({ playNameIntro = false }) {
   return <>
     <section className="home-hero">
       <div className="hero-lettering" aria-hidden="true">
@@ -17,8 +17,8 @@ function Home() {
       </div>
       <Lanyard />
       <div className="wrap hero-copy">
-        <AnimatedName text="I’m Rholly Cao" />
-        <p>I build web apps for everyday problems, from finding a ride in Olongapo to organizing receipts.</p>
+        <AnimatedName text="I’m Rholly Cao" playIntro={playNameIntro} />
+        <p>I build web apps for everyday problems, creating accessible, efficient, and purpose-built tools.</p>
         <div className="hero-links">
           <a className="highlight paper-button" href={sitePath('works/transpogapo.html')}>Read the TranspoGAPO case study ↗</a>
           <a href={sitePath('about.html')}>Meet the developer →</a>
@@ -56,7 +56,7 @@ function mountHome() {
     } catch {
       // The next visit may show the loader again.
     }
-    mount(Home)
+    mount(Home, undefined, { playNameIntro: true })
   }
 
   const loader = document.getElementById('portfolio-boot')

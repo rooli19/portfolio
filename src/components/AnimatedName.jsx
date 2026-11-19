@@ -1,8 +1,18 @@
+import { useEffect, useState } from 'react'
+
 const letterDelays = [0, 105, 45, 150, 75]
 
-export default function AnimatedName({ text }) {
+export default function AnimatedName({ text, playIntro }) {
+  const [introActive, setIntroActive] = useState(playIntro)
+
+  useEffect(() => {
+    if (!playIntro) return
+    const timer = window.setTimeout(() => setIntroActive(false), 2000)
+    return () => window.clearTimeout(timer)
+  }, [playIntro])
+
   return <h1 className="home-name" aria-label={text}>
-    <span className="home-name-text" aria-hidden="true">
+    <span className="home-name-text" data-intro={introActive || undefined} aria-hidden="true">
       {text.split(' ').map((word, wordIndex) =>
         <span key={wordIndex}>
           {wordIndex > 0 && ' '}

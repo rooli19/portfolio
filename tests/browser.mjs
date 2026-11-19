@@ -26,7 +26,9 @@ const mime = {
   '.svg': 'image/svg+xml',
   '.woff2': 'font/woff2',
   '.avif': 'image/avif',
+  '.png': 'image/png',
   '.webp': 'image/webp',
+  '.webm': 'video/webm',
 }
 
 const server = createServer(async (request, response) => {
@@ -102,6 +104,64 @@ async function reportTransfer(page) {
   })
 }
 
+async function checkProjectLayout(page, viewport) {
+  const overview = page.locator('.project-overview')
+  const gallery = page.locator('.project-gallery')
+  const cutout = overview.locator('.project-cutout')
+  assert.equal(await cutout.evaluate(async image => {
+    await image.decode()
+    return getComputedStyle(image).animationName
+  }), 'none', 'Cutouts should stay still with reduced motion')
+
+  const images = gallery.locator('img')
+  const first = images.first()
+  if (await images.count()) {
+    assert.equal(await gallery.getByText('Screenshots coming soon').count(), 0)
+    for (const slide of ['cover', 'next']) {
+      if (slide === 'next') {
+        const next = gallery.getByRole('button', { name: 'Next screenshot' })
+        if (!await next.count()) break
+        const cover = await first.getAttribute('src')
+        await next.click()
+        assert.notEqual(await first.getAttribute('src'), cover)
+        assert.match(await gallery.locator('[aria-live]').textContent(), /^2 \/ /)
+      }
+      assert.ok(await first.evaluate(async image => {
+        await image.decode()
+        const stage = image.closest('.project-gallery-stage')
+        const { width, height } = image.getBoundingClientRect()
+        return Math.abs(height - width * image.naturalHeight / image.naturalWidth) <= 1
+          && width <= Math.min(stage.clientWidth, image.naturalWidth) + 1
+          && height <= Math.min(stage.clientHeight, image.naturalHeight) + 1
+      }), 'Screenshots should fit the stage at their natural proportions and size or smaller')
+    }
+  } else {
+    assert.equal(await gallery.getByText('Screenshots coming soon').count(), 1)
+  }
+
+  const position = await overview.evaluate(element => getComputedStyle(element).position)
+  if (viewport === mobile) {
+    assert.equal(position, 'static')
+    assert.ok((await overview.boundingBox()).y < (await gallery.boundingBox()).y)
+    return
+  }
+
+  assert.equal(position, 'sticky')
+  await page.evaluate(() => window.scrollTo(0, 0))
+  const galleryStart = await gallery.evaluate(element => element.getBoundingClientRect().top)
+  await page.evaluate(() => window.scrollTo(0, 128))
+  const pinnedTop = await overview.evaluate(element => element.getBoundingClientRect().top)
+  assert.equal(pinnedTop, 124)
+  assert.ok(await gallery.evaluate(element => element.getBoundingClientRect().top) < galleryStart - 100)
+
+  await overview.evaluate(element => {
+    const layout = element.parentElement.getBoundingClientRect()
+    window.scrollBy(0, layout.bottom - element.getBoundingClientRect().bottom + 64)
+  })
+  assert.ok(await overview.evaluate(element => element.getBoundingClientRect().top) < pinnedTop - 32,
+    'The overview should release at the end of the case study')
+}
+
 async function smoke(engine, browser) {
   const transfer = {}
   for (const viewport of [desktop, mobile]) {
@@ -124,6 +184,18 @@ async function smoke(engine, browser) {
         await page.screenshot({ path: resolve(results, viewport.width + '-' + name + '.webp'), animations: 'disabled' })
         const sizes = await reportTransfer(page)
         transfer[viewport.width + ' ' + route] = sizes
+      }
+      if (['/works/resh.html', '/works/landr.html', '/works/hiss-n-miss.html'].includes(route)) {
+        await checkProjectLayout(page, viewport)
+      }
+      if (route === '/') {
+        const camera = page.getByRole('region', { name: 'How I solve problems' })
+        await camera.getByRole('button', { name: 'Next scene' }).click()
+        assert.match(await camera.locator('[aria-live]').textContent(), /Scene 2 of 4\. Sketch/)
+        assert.equal(await camera.locator('.camera-photo').count(), 1)
+        assert.equal(await camera.locator('.camera-photo').evaluate(scene => getComputedStyle(scene).transform), 'none')
+        await camera.getByRole('button', { name: 'Take a snapshot' }).click()
+        assert.equal(await camera.locator('.camera-flash').count(), 0)
       }
     }
     await page.close()
@@ -175,6 +247,10 @@ async function regressions(browser) {
   for (const [viewport, reducedMotion] of [[desktop, 'no-preference'], [mobile, 'reduce']]) {
     const loading = await browser.newPage({ viewport, reducedMotion })
     await loading.addInitScript(() => {
+      window.nameIntroPlayed = false
+      document.addEventListener('animationstart', event => {
+        if (event.animationName === 'home-name-wobble') window.nameIntroPlayed = true
+      })
       let startedAt
       const bootObserver = new MutationObserver(() => {
         const boot = document.getElementById('portfolio-boot')
@@ -204,11 +280,20 @@ async function regressions(browser) {
     } finally {
       releaseScripts()
     }
+    const letter = loading.locator('.home-name-letter').first()
     await checkPage(loading, '/', routes['/'])
     assert.ok(await loading.evaluate(() => window.portfolioBootElapsed >= 3000))
     assert.equal(await loading.evaluate(() => sessionStorage.getItem('portfolio-loader-seen')), '1')
+    await loading.locator('.home-name-text[data-intro]').waitFor({ state: 'detached', timeout: 5000 })
+    assert.equal(await loading.evaluate(() => window.nameIntroPlayed), reducedMotion === 'no-preference')
+    assert.equal(await letter.evaluate(element => getComputedStyle(element).animationName), 'none')
     await loading.reload()
     await checkPage(loading, '/', routes['/'])
+    assert.equal(await letter.evaluate(element => getComputedStyle(element).animationName), 'none')
+    if (reducedMotion === 'no-preference') {
+      await loading.locator('.home-name-text').hover()
+      assert.equal(await letter.evaluate(element => getComputedStyle(element).animationName), 'home-name-wobble')
+    }
     await loading.close()
   }
 
@@ -240,20 +325,24 @@ async function regressions(browser) {
   await normal.mouse.move(1100, 425)
   await normal.waitForFunction(() =>
     new DOMMatrix(getComputedStyle(document.querySelector('.lanyard-assembly')).transform).m41 > 20)
-  assert.equal(await normal.locator('main video').count(), 0)
+  assert.equal(await normal.locator('.lanyard video').count(), 0)
   const skills = normal.getByRole('region', { name: 'What I build with' })
   await skills.getByRole('button', { name: 'Pause scrolling' }).click()
   assert.equal(await skills.locator('.tech-track').evaluate(track => getComputedStyle(track).animationPlayState), 'paused')
   await skills.getByRole('button', { name: 'Resume scrolling' }).click()
   assert.equal(await skills.locator('.tech-track').evaluate(track => getComputedStyle(track).animationPlayState), 'running')
-  await normal.getByRole('button', { name: 'Next photo', exact: true }).click()
-  assert.equal(await normal.locator('.camera-counter').textContent(), '002–008')
-  await normal.getByRole('button', { name: 'Previous photo' }).click()
-  assert.equal(await normal.locator('.camera-counter').textContent(), '001–008')
-  await normal.getByRole('button', { name: 'Take a snapshot' }).click()
-  assert.equal(await normal.locator('.camera-flash').count(), 1)
-  await normal.getByRole('button', { name: 'Move photo to end of the roll' }).click()
-  assert.equal(await normal.locator('.camera-photo').count() > 0, true)
+  const camera = normal.getByRole('region', { name: 'How I solve problems' })
+  const sceneStatus = camera.locator('[aria-live]')
+  await camera.getByRole('button', { name: 'Previous scene' }).press('Enter')
+  assert.match(await sceneStatus.textContent(), /Scene 4 of 4\. Test/)
+  await camera.getByRole('button', { name: 'Next scene' }).click()
+  assert.match(await sceneStatus.textContent(), /Scene 1 of 4\. Listen/)
+  await camera.getByRole('button', { name: 'Take a snapshot' }).click()
+  assert.equal(await camera.locator('.camera-flash').count(), 1)
+  await camera.getByRole('button', { name: 'Move scene to end of the roll' }).click()
+  assert.match(await sceneStatus.textContent(), /Scene 1 of 4\. Sketch/)
+  await camera.getByRole('button', { name: 'Previous scene' }).click()
+  assert.match(await sceneStatus.textContent(), /Scene 4 of 4\. Listen/)
   const notebook = normal.locator('.notebook-section')
   await notebook.evaluate(element => window.scrollTo(0, element.getBoundingClientRect().top + scrollY + element.offsetHeight * 0.35))
   await notebook.locator('[data-revealed="true"]').waitFor()
@@ -324,6 +413,13 @@ async function regressions(browser) {
   await normal.goto(site + '/works.html', { waitUntil: 'commit' })
   await normal.getByText('Loading portfolio…').waitFor()
   await checkPage(normal, '/works.html', 'Works')
+  const gameCover = normal.locator('.project-card').filter({ hasText: 'Hiss n Miss' }).locator('.hover-preview')
+  const preview = await gameCover.locator('video').elementHandle()
+  assert.equal(await preview.evaluate(video => video.paused), true)
+  await gameCover.hover()
+  await normal.waitForFunction(video => video.currentTime > 0 && video.hasAttribute('data-playing'), preview)
+  await normal.mouse.move(20, 110)
+  await normal.waitForFunction(video => video.paused && !video.hasAttribute('data-playing'), preview)
   await normal.close()
 
   const touch = await browser.newPage({ viewport: mobile, hasTouch: true, isMobile: true })
@@ -352,7 +448,7 @@ try {
       if (engine === 'chromium') {
         await writeFile(resolve(results, 'transfer.json'), JSON.stringify(transfer, null, 2))
         await regressions(browser)
-        console.log(engine + ': lanyard motion, camera, notebook, fallbacks, keyboard, contact, and slow load passed')
+        console.log(engine + ': lanyard motion, digicam, notebook, fallbacks, keyboard, contact, and slow load passed')
       }
       if (engine === 'firefox') {
         await repeatNavigation(browser)

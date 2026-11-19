@@ -28,7 +28,7 @@ export function ProjectCard({ project }) {
 export default function ProjectCards({ featured = false }) {
   return <div className={'project-grid' + (featured ? ' featured-projects' : '')}>
     {projects.map((project, index) => <div key={project.slug} className="project-entry">
-      {featured && index === 0 && <p className="sticky handwritten project-sticky">Local transit, made easier</p>}
+      {featured && index === 0 && <p className="sticky handwritten project-sticky">Featured case study</p>}
       <ProjectCard project={project} />
       {featured && <p className="handwritten project-annotation">
         <WobblyInk src={arrow} width={58} height={22} />
